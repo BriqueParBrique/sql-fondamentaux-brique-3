@@ -1,0 +1,10 @@
+- title: "Introduction"
+  file: "01-introduction"
+
+- title: "Installation"
+  file: "02-installation"
+  requires: "01-introduction" # optionnel : prérequis (file d'une étape précédente)
+
+- title: "Premier projet"
+  file: "03-premier-projet"
+  requires: "02-installation"

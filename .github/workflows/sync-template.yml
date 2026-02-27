@@ -1,0 +1,57 @@
+# Managed by BriqueParBrique/nouvelle-brique — do not edit in brick repos
+name: Sync from template
+
+on:
+  schedule:
+    - cron: '0 8 * * 1' # Every Monday at 08:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Fetch managed files from template
+        run: |
+          TEMPLATE_REPO="BriqueParBrique/nouvelle-brique"
+          BRANCH="main"
+          MANIFEST_URL="https://raw.githubusercontent.com/${TEMPLATE_REPO}/${BRANCH}/.template-sync"
+
+          # Telecharger le manifeste
+          curl -sL "$MANIFEST_URL" -o /tmp/template-sync.yml
+
+          # Extraire la liste des fichiers geres
+          FILES=$(sed -n '/^managed_files:/,/^[^ ]/p' /tmp/template-sync.yml \
+            | grep '^\s*-' | sed 's/^\s*-\s*//')
+
+          # Telecharger chaque fichier
+          for file in $FILES; do
+            mkdir -p "$(dirname "$file")"
+            HTTP_CODE=$(curl -sL -w "%{http_code}" \
+              "https://raw.githubusercontent.com/${TEMPLATE_REPO}/${BRANCH}/${file}" \
+              -o "${file}")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "OK: ${file}"
+            else
+              echo "SKIP (${HTTP_CODE}): ${file}"
+              rm -f "${file}"
+            fi
+          done
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          title: 'chore: sync template infrastructure files'
+          body: |
+            Mise à jour automatique des fichiers d'infrastructure depuis le template.
+
+            Ces fichiers sont gérés par `BriqueParBrique/nouvelle-brique` et ne doivent
+            pas être modifiés localement (voir `.template-sync`).
+          branch: sync/template-update
+          commit-message: 'chore: sync template files from nouvelle-brique'
+          delete-branch: true

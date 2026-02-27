@@ -1,0 +1,20 @@
+# Managed by BriqueParBrique/nouvelle-brique — do not edit in brick repos
+# Fichiers gérés par le template BriqueParBrique/nouvelle-brique.
+# Ces fichiers sont synchronisés automatiquement — ne pas modifier dans les repos de briques.
+managed_files:
+  - _layouts/default.html
+  - _layouts/step.html
+  - assets/css/style.css
+  - assets/js/progress.js
+  - index.html
+  - search.json
+  - sw.js
+  - site.webmanifest
+  - .github/workflows/pages.yml
+  - .github/workflows/sync-template.yml
+  - Gemfile
+  - Dockerfile
+  - justfile
+  - CONTRIBUTING.md
+  - DEVELOPER.md
+  - .template-sync

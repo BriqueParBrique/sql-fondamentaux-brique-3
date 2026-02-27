@@ -1,0 +1,49 @@
+# Métadonnées de la brique (à personnaliser)
+brique:
+  name: 'Nouvelle Brique'
+  color: blue # blue, teal, ou orange
+  level: 1 # 1, 2, ou 3
+  logo: /assets/img/logo.png
+  status: 'development' # "development" → affiche une bannière, vide ou absent → pas de bannière
+  prev_level_url: '' # URL du niveau précédent (vide = pas de lien)
+  next_level_url: '' # URL du niveau suivant (vide = pas de lien)
+
+# Analytics (optionnel) — décommenter et configurer pour activer
+# analytics:
+#   provider: plausible # plausible, matomo, ou google
+#   plausible:
+#     domain: example.com
+#     src: https://plausible.io/js/script.js
+#   matomo:
+#     url: https://matomo.example.com
+#     site_id: 1
+#   google:
+#     id: G-XXXXXXXXXX
+
+title: 'Nouvelle Brique - BriqueParBrique'
+description: 'Mini-onboarding pour Nouvelle Brique'
+url: 'https://briqueparbrique.github.io'
+baseurl: '/nouvelle-brique'
+repository: 'BriqueParBrique/nouvelle-brique'
+
+collections:
+  steps:
+    output: true
+    permalink: /:path/
+
+defaults:
+  - scope:
+      path: ''
+      type: steps
+    values:
+      layout: step
+
+exclude:
+  - README.md
+  - DEVELOPER.md
+  - CONTRIBUTING.md
+  - Dockerfile
+  - Gemfile
+  - Gemfile.lock
+  - justfile
+  - LICENSE

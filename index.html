@@ -1,0 +1,61 @@
+---
+layout: default
+title: "Accueil"
+# Managed by BriqueParBrique/nouvelle-brique — do not edit in brick repos
+---
+
+<section class="hero">
+  <div class="hero-content">
+    {% if site.brique.logo %}
+      <img src="{{ site.brique.logo | relative_url }}" alt="{{ site.brique.name }}" class="hero-logo">
+    {% endif %}
+    <h1 class="hero-title">{{ site.brique.name }}</h1>
+    <div class="hero-level" role="img" aria-label="Niveau {{ site.brique.level }} sur 3">
+      {% for i in (1..3) %}
+        <span class="level-pyramid {% if i <= site.brique.level %}active{% endif %}" aria-hidden="true"></span>
+      {% endfor %}
+    </div>
+    <p class="hero-description">{{ site.description }}</p>
+
+    {% assign first_step = site.data.steps | first %}
+
+    <!-- État : aucune progression -->
+    <div class="hero-state hero-state-fresh" id="state-fresh" aria-hidden="true">
+      <a href="{{ first_step.file | prepend: '/' | append: '/' | relative_url }}" class="hero-cta">Commencer</a>
+    </div>
+
+    <!-- État : en cours -->
+    <div class="hero-state hero-state-progress" id="state-progress" aria-hidden="true">
+      <p class="completion-summary" aria-live="polite">
+        <span class="completion-count" id="completion-count">0/{{ site.data.steps | size }}</span> étapes terminées
+      </p>
+      <a href="#" class="hero-cta hero-resume" id="hero-resume">Reprendre →</a>
+      <button class="hero-reset" id="reset-progress" type="button">Réinitialiser</button>
+    </div>
+
+    <!-- État : parcours terminé -->
+    <div class="hero-state hero-state-done" id="state-done" aria-hidden="true">
+      <p class="completion-congrats" role="status">Bravo, parcours terminé !</p>
+      <a href="{{ first_step.file | prepend: '/' | append: '/' | relative_url }}" class="hero-cta" id="restart-btn">Recommencer</a>
+    </div>
+  </div>
+</section>
+
+<section class="steps-overview">
+  <h2 class="steps-overview-title">Parcours</h2>
+  <div class="steps-list">
+    {% for step in site.data.steps %}
+      {% assign step_page = site.steps | where: "slug", step.file | first %}
+      {% assign wc = step_page.content | strip_html | number_of_words %}
+      {% assign rt = wc | divided_by: 100 %}
+      {% if rt == 0 %}{% assign rt = 1 %}{% endif %}
+      <a href="{{ step.file | prepend: '/' | append: '/' | relative_url }}" class="step-card" data-step-file="{{ step.file }}" aria-label="Étape {{ forloop.index }} : {{ step.title }}">
+        <span class="step-card-number">{{ forloop.index }}</span>
+        <div class="step-card-info">
+          <span class="step-card-title">{{ step.title }}</span>
+          <span class="step-card-reading-time">{{ rt }} min de lecture</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>

@@ -1,0 +1,5 @@
+---
+layout: null
+# Managed by BriqueParBrique/nouvelle-brique — do not edit in brick repos
+---
+[{% for step in site.steps %}{"title":{{ step.title | jsonify }},"url":"{{ step.url | relative_url }}","content":{{ step.content | strip_html | normalize_whitespace | jsonify }}}{% unless forloop.last %},{% endunless %}{% endfor %}]
