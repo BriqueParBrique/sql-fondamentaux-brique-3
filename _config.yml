@@ -1,12 +1,12 @@
-# Métadonnées de la brique (à personnaliser)
+# Métadonnées de la brique
 brique:
-  name: 'Nouvelle Brique'
-  color: blue # blue, teal, ou orange
-  level: 1 # 1, 2, ou 3
+  name: 'SQL Fondamentaux'
+  color: orange
+  level: 3
   logo: /assets/img/logo.png
-  status: 'development' # "development" → affiche une bannière, vide ou absent → pas de bannière
-  prev_level_url: '' # URL du niveau précédent (vide = pas de lien)
-  next_level_url: '' # URL du niveau suivant (vide = pas de lien)
+  status: 'development'
+  prev_level_url: '/sql-fondamentaux-brique-2'
+  next_level_url: ''
 
 # Analytics (optionnel) — décommenter et configurer pour activer
 # analytics:
@@ -20,11 +20,11 @@ brique:
 #   google:
 #     id: G-XXXXXXXXXX
 
-title: 'Nouvelle Brique - BriqueParBrique'
-description: 'Mini-onboarding pour Nouvelle Brique'
+title: 'SQL Fondamentaux Niveau 3 - BriqueParBrique'
+description: 'Apprendre à écrire et structurer une base de données avec SQL'
 url: 'https://briqueparbrique.github.io'
-baseurl: '/nouvelle-brique'
-repository: 'BriqueParBrique/nouvelle-brique'
+baseurl: '/sql-fondamentaux-brique-3'
+repository: 'BriqueParBrique/sql-fondamentaux-brique-3'
 
 collections:
   steps:

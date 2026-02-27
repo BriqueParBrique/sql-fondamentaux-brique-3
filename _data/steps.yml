@@ -1,10 +1,26 @@
-- title: "Introduction"
-  file: "01-introduction"
+- title: "CREATE TABLE"
+  file: "01-create-table"
 
-- title: "Installation"
-  file: "02-installation"
-  requires: "01-introduction" # optionnel : prérequis (file d'une étape précédente)
+- title: "INSERT INTO"
+  file: "02-insert-into"
+  requires: "01-create-table"
 
-- title: "Premier projet"
-  file: "03-premier-projet"
-  requires: "02-installation"
+- title: "UPDATE et DELETE"
+  file: "03-update-et-delete"
+  requires: "02-insert-into"
+
+- title: "Les contraintes"
+  file: "04-contraintes"
+  requires: "03-update-et-delete"
+
+- title: "Les sous-requêtes"
+  file: "05-sous-requetes"
+  requires: "04-contraintes"
+
+- title: "Les vues (CREATE VIEW)"
+  file: "06-vues"
+  requires: "05-sous-requetes"
+
+- title: "Mini-projet final"
+  file: "07-mini-projet"
+  requires: "06-vues"
