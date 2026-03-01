@@ -8,17 +8,9 @@ brique:
   prev_level_url: '' # URL du niveau précédent (vide = pas de lien)
   next_level_url: '' # URL du niveau suivant (vide = pas de lien)
 
-# Analytics (optionnel) — décommenter et configurer pour activer
-# analytics:
-#   provider: plausible # plausible, matomo, ou google
-#   plausible:
-#     domain: example.com
-#     src: https://plausible.io/js/script.js
-#   matomo:
-#     url: https://matomo.example.com
-#     site_id: 1
-#   google:
-#     id: G-XXXXXXXXXX
+# Analytics
+analytics:
+  goatcounter_code: briqueparbrique # briqueparbrique.goatcounter.com
 
 title: 'Nouvelle Brique - BriqueParBrique'
 description: 'Mini-onboarding pour Nouvelle Brique'
