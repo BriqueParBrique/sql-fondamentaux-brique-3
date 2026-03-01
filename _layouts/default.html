@@ -104,32 +104,9 @@
 
   <script src="{{ '/assets/js/progress.js' | relative_url }}" defer></script>
 
-  {% if site.analytics %}
-  <!-- Analytics -->
-  {% if site.analytics.provider == "plausible" %}
-  <script defer data-domain="{{ site.analytics.plausible.domain }}" src="{{ site.analytics.plausible.src | default: 'https://plausible.io/js/script.js' }}"></script>
-  {% elsif site.analytics.provider == "matomo" %}
-  <script>
-    var _paq = window._paq = window._paq || [];
-    _paq.push(["trackPageView"]);
-    _paq.push(["enableLinkTracking"]);
-    (function() {
-      var u="{{ site.analytics.matomo.url }}/";
-      _paq.push(["setTrackerUrl", u+"matomo.php"]);
-      _paq.push(["setSiteId", "{{ site.analytics.matomo.site_id }}"]);
-      var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0];
-      g.async=true; g.src=u+"matomo.js"; s.parentNode.insertBefore(g,s);
-    })();
-  </script>
-  {% elsif site.analytics.provider == "google" %}
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.analytics.google.id }}"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag("js", new Date());
-    gtag("config", "{{ site.analytics.google.id }}");
-  </script>
-  {% endif %}
+  {% if site.analytics.goatcounter_code %}
+  <!-- GoatCounter Analytics -->
+  <script data-goatcounter="https://{{ site.analytics.goatcounter_code }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
   {% endif %}
 
   <!-- Service Worker -->

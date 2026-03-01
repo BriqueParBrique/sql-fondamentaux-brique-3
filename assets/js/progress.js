@@ -282,14 +282,8 @@
   /* ===== Analytics Hooks (#14) ===== */
 
   function dispatchAnalytics(eventName, detail) {
-    if (typeof window.plausible === "function") {
-      window.plausible(eventName, { props: detail });
-    }
-    if (typeof window._paq !== "undefined") {
-      window._paq.push(["trackEvent", "Brique", eventName, detail.step || ""]);
-    }
-    if (typeof window.gtag === "function") {
-      window.gtag("event", eventName, detail);
+    if (typeof window.goatcounter !== "undefined" && window.goatcounter.count) {
+      window.goatcounter.count({ path: eventName, title: detail.step || eventName, event: true });
     }
     window.dispatchEvent(new CustomEvent("brique:" + eventName, { detail: detail }));
   }
