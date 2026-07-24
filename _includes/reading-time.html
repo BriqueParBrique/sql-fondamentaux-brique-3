@@ -1,0 +1,33 @@
+{%- comment -%}
+Managed by BriqueParBrique/nouvelle-brique — do not edit in brick repos
+
+Calcule un temps de lecture et l'expose dans la variable `reading_time`.
+
+Usage : {% include reading-time.html content=page.content %}
+
+Les blocs de code sont sortis du comptage de prose : sur ces pages ils
+représentent l'essentiel du volume et ne se « lisent » pas au même rythme, ce
+qui gonflait fortement l'estimation.
+
+Ils sont recomptés à part plutôt qu'ignorés, à 120 « mots » par minute contre 200
+pour la prose. Un bloc de code se parcourt plus lentement qu'une phrase, mais les
+gros blocs de jeu de données se copient-collent au lieu de se lire : un tarif trop
+lent (on avait essayé 30) donnait des estimations de 30 minutes pour une étape qui
+en demande une dizaine.
+{%- endcomment -%}
+{%- assign rt_code_words = 0 -%}
+{%- assign rt_chunks = include.content | split: '<pre' -%}
+{%- assign rt_prose = rt_chunks[0] -%}
+{%- for rt_chunk in rt_chunks offset: 1 -%}
+  {%- assign rt_halves = rt_chunk | split: '</pre>' -%}
+  {%- assign rt_cw = rt_halves[0] | strip_html | number_of_words -%}
+  {%- assign rt_code_words = rt_code_words | plus: rt_cw -%}
+  {%- if rt_halves.size > 1 -%}
+    {%- assign rt_prose = rt_prose | append: rt_halves[1] -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign rt_prose_words = rt_prose | strip_html | number_of_words -%}
+{%- assign rt_prose_time = rt_prose_words | divided_by: 200.0 -%}
+{%- assign rt_code_time = rt_code_words | divided_by: 120.0 -%}
+{%- assign reading_time = rt_prose_time | plus: rt_code_time | round -%}
+{%- if reading_time == 0 %}{% assign reading_time = 1 %}{% endif -%}

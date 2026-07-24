@@ -17,9 +17,7 @@ layout: default
 {% endfor %}
 
 {% assign step_number = current_index | plus: 1 %}
-{% assign word_count = content | strip_html | number_of_words %}
-{% assign reading_time = word_count | divided_by: 100 %}
-{% if reading_time == 0 %}{% assign reading_time = 1 %}{% endif %}
+{% include reading-time.html content=content %}
 
 <article class="step-container" data-step="{{ page.url | remove: '/' }}">
 

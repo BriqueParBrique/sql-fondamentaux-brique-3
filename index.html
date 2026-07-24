@@ -7,7 +7,7 @@ title: "Accueil"
 <section class="hero">
   <div class="hero-content">
     {% if site.brique.logo %}
-      <img src="{{ site.brique.logo | relative_url }}" alt="{{ site.brique.name }}" class="hero-logo">
+      <img src="{{ site.brique.logo | relative_url }}" alt="{{ site.brique.name }}" class="hero-logo" width="80" height="80">
     {% endif %}
     <h1 class="hero-title">{{ site.brique.name }}</h1>
     <div class="hero-level" role="img" aria-label="Niveau {{ site.brique.level }} sur 3">
@@ -19,8 +19,11 @@ title: "Accueil"
 
     {% assign first_step = site.data.steps | first %}
 
-    <!-- État : aucune progression -->
-    <div class="hero-state hero-state-fresh" id="state-fresh" aria-hidden="true">
+    <!-- État : aucune progression.
+         Actif par défaut : sans JavaScript, le bouton « Commencer » reste
+         visible et utilisable. progress.js basculera vers un autre état si une
+         progression existe. -->
+    <div class="hero-state hero-state-fresh active" id="state-fresh">
       <a href="{{ first_step.file | prepend: '/' | append: '/' | relative_url }}" class="hero-cta">Commencer</a>
     </div>
 
@@ -46,9 +49,8 @@ title: "Accueil"
   <div class="steps-list">
     {% for step in site.data.steps %}
       {% assign step_page = site.steps | where: "slug", step.file | first %}
-      {% assign wc = step_page.content | strip_html | number_of_words %}
-      {% assign rt = wc | divided_by: 100 %}
-      {% if rt == 0 %}{% assign rt = 1 %}{% endif %}
+      {% include reading-time.html content=step_page.content %}
+      {% assign rt = reading_time %}
       <a href="{{ step.file | prepend: '/' | append: '/' | relative_url }}" class="step-card" data-step-file="{{ step.file }}" aria-label="Étape {{ forloop.index }} : {{ step.title }}">
         <span class="step-card-number">{{ forloop.index }}</span>
         <div class="step-card-info">

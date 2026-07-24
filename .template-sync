@@ -4,6 +4,8 @@
 managed_files:
   - _layouts/default.html
   - _layouts/step.html
+  - _includes/reading-time.html
+  - _data/colors.yml
   - assets/css/style.css
   - assets/js/progress.js
   - index.html
@@ -13,8 +15,10 @@ managed_files:
   - .github/workflows/pages.yml
   - .github/workflows/sync-template.yml
   - Gemfile
+  - Gemfile.lock
   - Dockerfile
   - justfile
+  - .gitignore
   - CONTRIBUTING.md
   - DEVELOPER.md
   - .template-sync

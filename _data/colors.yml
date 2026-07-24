@@ -1,0 +1,7 @@
+# Managed by BriqueParBrique/nouvelle-brique — do not edit in brick repos
+# Couleur primaire de chaque brique, en miroir des classes .brique-* de
+# assets/css/style.css. Utilisée pour theme-color (chrome du navigateur) et
+# pour le theme_color du manifeste PWA.
+blue: '#3b7dd8'
+teal: '#2a9d8f'
+orange: '#e09f3e'

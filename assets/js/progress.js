@@ -132,6 +132,21 @@
 
   /* ===== Search (#5) ===== */
 
+  /* Replie accents et casse pour que « requete » trouve « requête » et
+     « eleves » trouve « élèves ». Le repli se fait caractère par caractère afin
+     de conserver la longueur de la chaîne : l'index d'une correspondance dans
+     la version repliée reste ainsi valable dans la chaîne d'origine, ce qui
+     permet d'en extraire l'extrait au bon endroit. */
+  function fold(s) {
+    var out = "";
+    for (var i = 0; i < s.length; i++) {
+      var ch = s.charAt(i);
+      var base = ch.normalize("NFD").charAt(0).toLowerCase();
+      out += base.length === 1 ? base : ch;
+    }
+    return out;
+  }
+
   function initSearch() {
     var modal = document.getElementById("search-modal");
     var input = document.getElementById("search-input");
@@ -177,7 +192,13 @@
     function loadIndex() {
       fetch(baseurl + "/search.json")
         .then(function (r) { return r.json(); })
-        .then(function (data) { searchIndex = data; });
+        .then(function (data) {
+          data.forEach(function (item) {
+            item.foldedTitle = fold(item.title);
+            item.foldedContent = fold(item.content);
+          });
+          searchIndex = data;
+        });
     }
 
     if (toggleBtn) {
@@ -187,7 +208,7 @@
     modal.querySelector(".search-modal-backdrop").addEventListener("click", closeSearch);
 
     document.addEventListener("keydown", function (e) {
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+      if ((e.ctrlKey || e.metaKey) && e.key && e.key.toLowerCase() === "k") {
         e.preventDefault();
         modal.classList.contains("active") ? closeSearch() : openSearch();
       }
@@ -198,13 +219,13 @@
 
     input.addEventListener("input", function () {
       if (!searchIndex) return;
-      var query = input.value.toLowerCase().trim();
+      var query = fold(input.value.trim());
       results.innerHTML = "";
       if (query.length < 2) return;
 
       var matches = searchIndex.filter(function (item) {
-        return item.title.toLowerCase().indexOf(query) !== -1 ||
-               item.content.toLowerCase().indexOf(query) !== -1;
+        return item.foldedTitle.indexOf(query) !== -1 ||
+               item.foldedContent.indexOf(query) !== -1;
       });
 
       if (matches.length === 0) {
@@ -221,7 +242,7 @@
         title.textContent = item.title;
         a.appendChild(title);
 
-        var idx = item.content.toLowerCase().indexOf(query);
+        var idx = item.foldedContent.indexOf(query);
         if (idx !== -1) {
           var snippet = document.createElement("span");
           var start = Math.max(0, idx - 40);
@@ -282,14 +303,8 @@
   /* ===== Analytics Hooks (#14) ===== */
 
   function dispatchAnalytics(eventName, detail) {
-    if (typeof window.plausible === "function") {
-      window.plausible(eventName, { props: detail });
-    }
-    if (typeof window._paq !== "undefined") {
-      window._paq.push(["trackEvent", "Brique", eventName, detail.step || ""]);
-    }
-    if (typeof window.gtag === "function") {
-      window.gtag("event", eventName, detail);
+    if (typeof window.goatcounter !== "undefined" && window.goatcounter.count) {
+      window.goatcounter.count({ path: eventName, title: detail.step || eventName, event: true });
     }
     window.dispatchEvent(new CustomEvent("brique:" + eventName, { detail: detail }));
   }

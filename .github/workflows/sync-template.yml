@@ -44,8 +44,10 @@ jobs:
           done
 
       - name: Create pull request
+        id: create-pr
         uses: peter-evans/create-pull-request@v8
         with:
+          token: ${{ secrets.SYNC_TEMPLATE_TOKEN }}
           title: 'chore: sync template infrastructure files'
           body: |
             Mise à jour automatique des fichiers d'infrastructure depuis le template.
@@ -55,3 +57,10 @@ jobs:
           branch: sync/template-update
           commit-message: 'chore: sync template files from nouvelle-brique'
           delete-branch: true
+
+      - name: Check result
+        if: failure()
+        run: |
+          echo "::error::Failed to create pull request. Make sure GitHub Actions has permission to create PRs."
+          echo "::error::Enable 'Allow GitHub Actions to create and approve pull requests' in Settings → Actions → General → Workflow permissions (both at org and repo level)."
+          exit 1

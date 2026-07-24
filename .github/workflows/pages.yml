@@ -32,14 +32,34 @@ jobs:
         env:
           JEKYLL_ENV: production
 
-      - name: Read baseurl
+      - name: Read config
         id: config
         run: |
           BASEURL=$(ruby -ryaml -e "puts YAML.load_file('_config.yml')['baseurl']")
+          # Hôte du site, échappé pour servir dans une expression régulière.
+          SITEHOST=$(ruby -ryaml -ruri -e "puts Regexp.escape(URI(YAML.load_file('_config.yml')['url']).host)")
           echo "baseurl=${BASEURL}" >> "$GITHUB_OUTPUT"
+          echo "sitehost=${SITEHOST}" >> "$GITHUB_OUTPUT"
 
+      # Deux familles d'URL sont exclues de la validation :
+      #
+      # - briqueparbrique.github.io : le lien canonique de la page courante et les
+      #   liens vers les autres niveaux (qui vivent dans d'autres dépôts). Les
+      #   vérifier ferait dépendre la CI de l'état du site déjà publié, et
+      #   échouerait pour toute brique pas encore en ligne.
+      # - github.com : les liens « Modifier cette page » et « Signaler un
+      #   problème » pointent vers /edit/ et /issues/new, que GitHub sert en 404
+      #   à un visiteur non authentifié.
+      #
+      # Les vrais liens externes du contenu pédagogique restent vérifiés.
+      # Les entrées entourées de « / » sont interprétées comme des expressions
+      # régulières par html-proofer.
       - name: Validate HTML
-        run: bundle exec htmlproofer _site --ignore-urls "/^#/" --no-enforce-https --swap-urls "^${{ steps.config.outputs.baseurl }}/:/"
+        run: |
+          bundle exec htmlproofer _site \
+            --ignore-urls "/^#/,/${{ steps.config.outputs.sitehost }}/,/^https:..github\.com./" \
+            --no-enforce-https \
+            --swap-urls "^${{ steps.config.outputs.baseurl }}/:/"
 
       - uses: actions/upload-pages-artifact@v4
         if: github.ref == 'refs/heads/main'

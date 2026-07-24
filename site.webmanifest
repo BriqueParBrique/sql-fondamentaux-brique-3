@@ -10,7 +10,7 @@ layout: null
   "scope": "{{ '/' | relative_url }}",
   "display": "standalone",
   "background_color": "#f5f5f0",
-  "theme_color": "#3b7dd8",
+  "theme_color": "{{ site.data.colors[site.brique.color] | default: '#3b7dd8' }}",
   "icons": [
     {
       "src": "{{ '/assets/img/apple-touch-icon.png' | relative_url }}",

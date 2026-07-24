@@ -2,4 +2,20 @@
 layout: null
 # Managed by BriqueParBrique/nouvelle-brique — do not edit in brick repos
 ---
-[{% for step in site.steps %}{"title":{{ step.title | jsonify }},"url":"{{ step.url | relative_url }}","content":{{ step.content | strip_html | normalize_whitespace | jsonify }}}{% unless forloop.last %},{% endunless %}{% endfor %}]
+{%- comment -%}
+Index de recherche. Les blocs <details> (corrigés des exercices) sont retirés :
+sans cela, chercher un mot-clé révélerait les solutions.
+{%- endcomment -%}
+[
+{%- for step in site.steps -%}
+  {%- assign parts = step.content | split: '<details' -%}
+  {%- assign searchable = parts[0] -%}
+  {%- for part in parts offset: 1 -%}
+    {%- assign after = part | split: '</details>' -%}
+    {%- if after.size > 1 -%}
+      {%- assign searchable = searchable | append: after[1] -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {"title":{{ step.title | jsonify }},"url":"{{ step.url | relative_url }}","content":{{ searchable | strip_html | normalize_whitespace | jsonify }}}{%- unless forloop.last -%},{%- endunless -%}
+{%- endfor -%}
+]
