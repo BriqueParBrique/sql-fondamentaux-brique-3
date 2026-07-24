@@ -4,21 +4,13 @@ brique:
   color: orange
   level: 3
   logo: /assets/img/logo.png
-  status: 'development'
+  status: ''
   prev_level_url: '/sql-fondamentaux-brique-2'
   next_level_url: ''
 
-# Analytics (optionnel) — décommenter et configurer pour activer
-# analytics:
-#   provider: plausible # plausible, matomo, ou google
-#   plausible:
-#     domain: example.com
-#     src: https://plausible.io/js/script.js
-#   matomo:
-#     url: https://matomo.example.com
-#     site_id: 1
-#   google:
-#     id: G-XXXXXXXXXX
+# Analytics (optionnel)
+analytics:
+  goatcounter_code: briqueparbrique # briqueparbrique.goatcounter.com
 
 title: 'SQL Fondamentaux Niveau 3 - BriqueParBrique'
 description: 'Apprendre à écrire et structurer une base de données avec SQL'

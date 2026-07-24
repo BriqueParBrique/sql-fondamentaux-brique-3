@@ -4,176 +4,269 @@ title: "Les contraintes"
 
 ## Protéger ses données
 
-Les contraintes permettent de définir des **règles** sur les colonnes. Elles empêchent l'insertion de données invalides.
+Nos deux tables fonctionnent, mais elles acceptent n'importe quoi. Rien n'empêche
+d'insérer une dépense sans montant, deux catégories nommées « Loisirs », ou une
+dépense rattachée à une catégorie qui n'existe pas.
+
+Les **contraintes** sont des règles déclarées dans le `CREATE TABLE`. La base les
+vérifie à chaque écriture et **refuse** les données invalides. C'est une différence
+de nature avec un `SELECT` de vérification : la contrainte n'oublie jamais.
 
 ### NOT NULL — Interdire les valeurs vides
 
 ```sql
-CREATE TABLE recettes_v2 (
+CREATE TABLE exemple_categories (
     id INTEGER PRIMARY KEY,
     nom TEXT NOT NULL,
-    categorie TEXT NOT NULL,
-    temps_preparation INTEGER,
-    difficulte TEXT,
-    note REAL
+    budget_mensuel REAL
 );
 ```
 
-Maintenant, essayer d'insérer sans nom provoque une erreur :
+Insérer sans nom provoque maintenant une erreur :
 
 ```sql
--- ❌ Erreur ! nom ne peut pas être NULL
-INSERT INTO recettes_v2 (id, categorie) VALUES (1, 'Dessert');
+-- ❌ Erreur : NOT NULL constraint failed
+INSERT INTO exemple_categories (id, budget_mensuel) VALUES (1, 300);
 
 -- ✓ Correct
-INSERT INTO recettes_v2 (id, nom, categorie) VALUES (1, 'Crêpes', 'Dessert');
+INSERT INTO exemple_categories (id, nom, budget_mensuel) VALUES (1, 'Alimentation', 300);
 ```
 
 ### UNIQUE — Interdire les doublons
 
+Deux catégories nommées « Loisirs » rendraient tous nos regroupements
+incompréhensibles :
+
 ```sql
-CREATE TABLE utilisateurs (
+CREATE TABLE exemple_categories2 (
     id INTEGER PRIMARY KEY,
-    pseudo TEXT UNIQUE NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    nom TEXT NOT NULL
+    nom TEXT NOT NULL UNIQUE,
+    budget_mensuel REAL
 );
 ```
 
 ```sql
-INSERT INTO utilisateurs VALUES (1, 'alice42', 'alice@mail.com', 'Alice Martin');
+INSERT INTO exemple_categories2 VALUES (1, 'Loisirs', 100);
 
--- ❌ Erreur ! Le pseudo "alice42" existe déjà
-INSERT INTO utilisateurs VALUES (2, 'alice42', 'bob@mail.com', 'Bob Dupont');
+-- ❌ Erreur : UNIQUE constraint failed
+INSERT INTO exemple_categories2 VALUES (2, 'Loisirs', 150);
 ```
 
 ### DEFAULT — Valeur par défaut
 
-```sql
-CREATE TABLE commandes (
-    id INTEGER PRIMARY KEY,
-    produit TEXT NOT NULL,
-    quantite INTEGER DEFAULT 1,
-    statut TEXT DEFAULT 'en attente'
-);
-```
+`DEFAULT` fournit une valeur quand on n'en donne pas. Pratique pour éviter les
+colonnes vides :
 
 ```sql
--- La quantité sera 1 et le statut "en attente" automatiquement
-INSERT INTO commandes (id, produit) VALUES (1, 'Livre SQL');
+CREATE TABLE exemple_depenses (
+    id INTEGER PRIMARY KEY,
+    description TEXT NOT NULL,
+    montant REAL NOT NULL,
+    moyen_paiement TEXT NOT NULL DEFAULT 'carte'
+);
 
-SELECT * FROM commandes;
+-- On ne précise pas le moyen de paiement
+INSERT INTO exemple_depenses (id, description, montant) VALUES (1, 'Courses', 42.00);
+
+SELECT * FROM exemple_depenses;
 ```
 
-| id | produit | quantite | statut |
-|----|---------|----------|--------|
-| 1 | Livre SQL | 1 | en attente |
+| id  | description | montant | moyen_paiement |
+| --- | ----------- | ------- | -------------- |
+| 1   | Courses     | 42.0    | carte          |
 
-### FOREIGN KEY — Relier les tables
+Remarque la combinaison `NOT NULL DEFAULT 'carte'` : la colonne ne peut pas être
+vide, **et** on n'est pas obligé de la renseigner. Les deux contraintes se
+complètent.
 
-Une **clé étrangère** crée un lien entre deux tables et garantit que la référence est valide.
+### FOREIGN KEY — Garantir que la référence existe
+
+C'est la contrainte la plus utile de notre projet. Une **clé étrangère** déclare
+que `depenses.categorie_id` doit correspondre à un `categories.id` existant.
 
 ```sql
-DROP TABLE IF EXISTS ingredients_recette;
-DROP TABLE IF EXISTS ingredients;
-DROP TABLE IF EXISTS recettes_v3;
-
-CREATE TABLE recettes_v3 (
-    id INTEGER PRIMARY KEY,
-    nom TEXT NOT NULL,
-    categorie TEXT NOT NULL
-);
-
-CREATE TABLE ingredients (
-    id INTEGER PRIMARY KEY,
-    recette_id INTEGER NOT NULL,
-    nom TEXT NOT NULL,
-    quantite TEXT,
-    FOREIGN KEY (recette_id) REFERENCES recettes_v3(id)
-);
+FOREIGN KEY (categorie_id) REFERENCES categories(id)
 ```
 
-Pour que SQLite vérifie les clés étrangères, il faut activer cette option :
+Attention, un piège classique : **SQLite ne vérifie pas les clés étrangères par
+défaut.** Il faut l'activer, et le faire à chaque nouvelle connexion :
 
 ```sql
 PRAGMA foreign_keys = ON;
 ```
 
-Maintenant :
+Si tu oublies cette ligne, tes `FOREIGN KEY` sont purement décoratives — elles
+documentent l'intention sans rien empêcher. Prends l'habitude de la mettre en tête
+de tes scripts.
+
+### La version définitive de nos tables
+
+On a maintenant tout ce qu'il faut pour écrire le schéma correctement. Comme
+`ALTER TABLE` ne sait pas ajouter une contrainte après coup (vu à l'étape 1), on
+recrée les tables.
+
+**Ce bloc est le jeu de données de référence des étapes 5, 6 et 7.** Il est
+rejouable : tu peux le relancer à tout moment pour repartir d'une base propre.
 
 ```sql
-INSERT INTO recettes_v3 VALUES (1, 'Crêpes', 'Dessert');
+PRAGMA foreign_keys = ON;
 
--- ✓ Correct : la recette 1 existe
-INSERT INTO ingredients VALUES (1, 1, 'Farine', '250g');
+DROP TABLE IF EXISTS depenses;
+DROP TABLE IF EXISTS categories;
 
--- ❌ Erreur ! La recette 99 n'existe pas
-INSERT INTO ingredients VALUES (2, 99, 'Sucre', '50g');
-```
-
-### Combiner les contraintes
-
-On peut mettre plusieurs contraintes sur une même colonne :
-
-```sql
-CREATE TABLE produits (
+CREATE TABLE categories (
     id INTEGER PRIMARY KEY,
     nom TEXT NOT NULL UNIQUE,
-    prix REAL NOT NULL DEFAULT 0,
-    stock INTEGER NOT NULL DEFAULT 0
+    budget_mensuel REAL NOT NULL DEFAULT 0
 );
+
+CREATE TABLE depenses (
+    id INTEGER PRIMARY KEY,
+    description TEXT NOT NULL,
+    montant REAL NOT NULL,
+    categorie_id INTEGER NOT NULL,
+    date_depense TEXT NOT NULL,
+    moyen_paiement TEXT NOT NULL DEFAULT 'carte',
+    FOREIGN KEY (categorie_id) REFERENCES categories(id)
+);
+
+INSERT INTO categories (id, nom, budget_mensuel) VALUES
+(1, 'Alimentation', 300),
+(2, 'Transport', 150),
+(3, 'Loisirs', 100),
+(4, 'Santé', 80),
+(5, 'Restaurant', 120);
+
+INSERT INTO depenses (id, description, montant, categorie_id, date_depense, moyen_paiement) VALUES
+(1,  'Courses Carrefour',         87.50, 1, '2024-01-05', 'carte'),
+(2,  'Essence',                   65.00, 2, '2024-01-08', 'carte'),
+(3,  'Restaurant italien',        42.00, 5, '2024-01-12', 'carte'),
+(4,  'Abonnement Netflix',        13.49, 3, '2024-01-15', 'virement'),
+(5,  'Courses Leclerc',           62.30, 1, '2024-01-19', 'carte'),
+(6,  'Train Paris-Lyon',          89.00, 2, '2024-01-22', 'carte'),
+(7,  'Cinéma',                    11.50, 3, '2024-01-25', 'espèces'),
+(8,  'Pharmacie',                 23.80, 4, '2024-01-28', 'carte'),
+(9,  'Restaurant japonais',       38.00, 5, '2024-02-02', 'carte'),
+(10, 'Courses Monoprix',          45.20, 1, '2024-02-05', 'carte'),
+(11, 'Abonnement salle de sport', 35.00, 3, '2024-02-08', 'virement'),
+(12, 'Essence',                   58.00, 2, '2024-02-12', 'carte'),
+(13, 'Courses bio',               53.40, 1, '2024-02-15', 'espèces'),
+(14, 'Abonnement Netflix',        13.49, 3, '2024-02-15', 'virement'),
+(15, 'Médecin',                   25.00, 4, '2024-02-18', 'carte'),
+(16, 'Pizzeria',                  28.50, 5, '2024-02-22', 'espèces'),
+(17, 'Concert',                   62.00, 3, '2024-02-24', 'carte'),
+(18, 'Courses Grand Frais',       60.00, 1, '2024-02-27', 'carte');
 ```
+
+### Les contraintes en action
+
+Maintenant, la base se défend :
+
+```sql
+-- ❌ NOT NULL : une dépense sans montant
+INSERT INTO depenses (id, description, categorie_id, date_depense)
+VALUES (99, 'Mystère', 1, '2024-03-01');
+
+-- ❌ UNIQUE : la catégorie Loisirs existe déjà
+INSERT INTO categories (id, nom, budget_mensuel) VALUES (6, 'Loisirs', 200);
+
+-- ❌ FOREIGN KEY : la catégorie 42 n'existe pas
+INSERT INTO depenses (id, description, montant, categorie_id, date_depense)
+VALUES (99, 'Dépense orpheline', 10.00, 42, '2024-03-01');
+
+-- ✓ Tout est valide, et moyen_paiement prend sa valeur par défaut
+INSERT INTO depenses (id, description, montant, categorie_id, date_depense)
+VALUES (99, 'Marché', 18.60, 1, '2024-03-02');
+
+SELECT * FROM depenses WHERE id = 99;   -- moyen_paiement = 'carte'
+DELETE FROM depenses WHERE id = 99;     -- on nettoie
+```
+
+La clé étrangère protège aussi dans l'autre sens — impossible de supprimer une
+catégorie encore utilisée :
+
+```sql
+-- ❌ Erreur : des dépenses référencent encore cette catégorie
+DELETE FROM categories WHERE id = 1;
+```
+
+C'est voulu : sans ce garde-fou, on se retrouverait avec des dépenses pointant
+vers une catégorie disparue.
+
+### Récapitulatif
+
+| Contrainte    | Garantit que…                                             |
+| ------------- | --------------------------------------------------------- |
+| `PRIMARY KEY` | chaque ligne a un identifiant unique                      |
+| `NOT NULL`    | la colonne est toujours renseignée                        |
+| `UNIQUE`      | deux lignes n'ont pas la même valeur                      |
+| `DEFAULT`     | une valeur est fournie si on n'en donne pas               |
+| `FOREIGN KEY` | la valeur correspond à une ligne existante d'une autre table |
 
 ### Exercice
 
-1. Crée une table `eleves` avec : id (clé primaire), nom (NOT NULL), prenom (NOT NULL), email (UNIQUE, NOT NULL), age (INTEGER)
-2. Insère 3 élèves, puis essaie d'insérer un élève avec le même email — que se passe-t-il ?
-3. Crée une table `notes` avec : id, eleve_id (FOREIGN KEY vers eleves), matiere (NOT NULL), note (REAL, NOT NULL), commentaire (DEFAULT 'Aucun commentaire')
-4. Active `PRAGMA foreign_keys = ON`, puis essaie d'insérer une note pour un élève qui n'existe pas
-5. Insère 2 notes valides et vérifie avec `SELECT * FROM notes;`
+Pars du bloc de référence ci-dessus.
+
+1. Vérifie que `PRAGMA foreign_keys = ON;` est actif, puis tente d'insérer une
+   dépense avec `categorie_id = 99` : quelle erreur obtiens-tu ?
+2. Tente d'ajouter une deuxième catégorie nommée « Transport » : quelle contrainte
+   te bloque ?
+3. Insère une dépense **sans** préciser `moyen_paiement`, puis vérifie la valeur
+   qu'elle a reçue *(`carte`)*
+4. Tente de supprimer la catégorie « Santé », puis explique pourquoi ça échoue.
+   Que faudrait-il faire d'abord ?
+5. Crée une table `abonnements` (id, libelle NOT NULL UNIQUE, montant_mensuel NOT
+   NULL, categorie_id NOT NULL avec une FOREIGN KEY vers `categories`, actif
+   INTEGER NOT NULL DEFAULT 1), insère deux abonnements valides et un invalide
 
 <details>
 <summary>Voir les réponses</summary>
 
 ```sql
--- 1. Table élèves
-CREATE TABLE eleves (
-    id INTEGER PRIMARY KEY,
-    nom TEXT NOT NULL,
-    prenom TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    age INTEGER
-);
-
--- 2. Insertions
-INSERT INTO eleves VALUES (1, 'Martin', 'Alice', 'alice@ecole.fr', 15);
-INSERT INTO eleves VALUES (2, 'Dupont', 'Bob', 'bob@ecole.fr', 16);
-INSERT INTO eleves VALUES (3, 'Petit', 'Claire', 'claire@ecole.fr', 15);
-
--- ❌ Erreur ! Email déjà utilisé
--- INSERT INTO eleves VALUES (4, 'Moreau', 'David', 'alice@ecole.fr', 17);
-
--- 3. Table notes
-CREATE TABLE notes (
-    id INTEGER PRIMARY KEY,
-    eleve_id INTEGER NOT NULL,
-    matiere TEXT NOT NULL,
-    note REAL NOT NULL,
-    commentaire TEXT DEFAULT 'Aucun commentaire',
-    FOREIGN KEY (eleve_id) REFERENCES eleves(id)
-);
-
--- 4. Clés étrangères
 PRAGMA foreign_keys = ON;
 
--- ❌ Erreur ! L'élève 99 n'existe pas
--- INSERT INTO notes VALUES (1, 99, 'Maths', 15.5, 'Bien');
+-- 1. FOREIGN KEY constraint failed
+INSERT INTO depenses (id, description, montant, categorie_id, date_depense)
+VALUES (99, 'Test', 10.00, 99, '2024-03-01');
 
--- 5. Notes valides
-INSERT INTO notes (id, eleve_id, matiere, note) VALUES (1, 1, 'Maths', 17.5);
-INSERT INTO notes (id, eleve_id, matiere, note, commentaire) VALUES (2, 2, 'Français', 14.0, 'En progrès');
+-- 2. UNIQUE constraint failed: categories.nom
+INSERT INTO categories (id, nom, budget_mensuel) VALUES (6, 'Transport', 200);
 
-SELECT * FROM notes;
+-- 3. DEFAULT en action
+INSERT INTO depenses (id, description, montant, categorie_id, date_depense)
+VALUES (99, 'Marché', 18.60, 1, '2024-03-02');
+
+SELECT moyen_paiement FROM depenses WHERE id = 99;   -- carte
+DELETE FROM depenses WHERE id = 99;
+
+-- 4. Échec : FOREIGN KEY constraint failed.
+--    Les dépenses 8 et 15 (Pharmacie, Médecin) référencent la catégorie 4.
+--    Il faudrait d'abord supprimer ou réaffecter ces dépenses.
+SELECT * FROM depenses WHERE categorie_id = 4;   -- 2 lignes
+DELETE FROM categories WHERE id = 4;             -- ❌
+
+-- 5. Table abonnements
+DROP TABLE IF EXISTS abonnements;
+
+CREATE TABLE abonnements (
+    id INTEGER PRIMARY KEY,
+    libelle TEXT NOT NULL UNIQUE,
+    montant_mensuel REAL NOT NULL,
+    categorie_id INTEGER NOT NULL,
+    actif INTEGER NOT NULL DEFAULT 1,
+    FOREIGN KEY (categorie_id) REFERENCES categories(id)
+);
+
+-- ✓ Valides (actif vaut 1 par défaut)
+INSERT INTO abonnements (id, libelle, montant_mensuel, categorie_id) VALUES
+(1, 'Netflix', 13.49, 3),
+(2, 'Salle de sport', 35.00, 3);
+
+-- ❌ Invalide : libellé en doublon
+INSERT INTO abonnements (id, libelle, montant_mensuel, categorie_id)
+VALUES (3, 'Netflix', 15.49, 3);
+
+DROP TABLE abonnements;
 ```
 
 </details>
