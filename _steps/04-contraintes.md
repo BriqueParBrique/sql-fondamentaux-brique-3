@@ -219,7 +219,7 @@ Pars du bloc de référence ci-dessus.
    NULL, categorie_id NOT NULL avec une FOREIGN KEY vers `categories`, actif
    INTEGER NOT NULL DEFAULT 1), insère deux abonnements valides et un invalide
 
-<details>
+<details markdown="1">
 <summary>Voir les réponses</summary>
 
 ```sql

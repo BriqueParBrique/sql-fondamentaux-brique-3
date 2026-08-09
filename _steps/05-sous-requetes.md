@@ -188,7 +188,7 @@ Le nombre de lignes attendu est indiqué entre parenthèses.
 6. Affiche les catégories dont **aucune** dépense n'a été payée en espèces
    *(2 lignes — indice : `NOT IN`)*
 
-<details>
+<details markdown="1">
 <summary>Voir les réponses</summary>
 
 ```sql

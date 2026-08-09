@@ -177,7 +177,7 @@ erreur. Tu retrouveras ce motif au début de toutes les étapes suivantes.
 4. Crée une table `abonnements` (id, nom, montant_mensuel, date_debut), puis renomme la colonne `nom` en `libelle`
 5. Supprime la table `abonnements`, puis relance exactement la même commande de suppression : que se passe-t-il ? Comment l'éviter ?
 
-<details>
+<details markdown="1">
 <summary>Voir les réponses</summary>
 
 ```sql

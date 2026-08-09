@@ -183,7 +183,7 @@ Le nombre de lignes attendu est indiqué entre parenthèses.
    paiement *(3 lignes)*
 6. Supprime la vue `depenses_par_moyen_paiement`
 
-<details>
+<details markdown="1">
 <summary>Voir les réponses</summary>
 
 ```sql

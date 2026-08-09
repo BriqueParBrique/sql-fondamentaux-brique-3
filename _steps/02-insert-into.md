@@ -161,7 +161,7 @@ SELECT COUNT(*) FROM depenses;   -- 18
 4. Insère une dépense sans préciser l'`id`, et vérifie quel `id` SQLite lui a donné
 5. Combien as-tu dépensé au total en février 2024 ? *(indice : `WHERE date_depense LIKE '2024-02%'`, et n'oublie pas que tu viens d'ajouter deux lignes)*
 
-<details>
+<details markdown="1">
 <summary>Voir les réponses</summary>
 
 ```sql

@@ -182,7 +182,7 @@ intacte à la fin de l'exercice, pour que l'étape 4 reparte du bon état.
 5. Sans faire de `COMMIT`, annule tout avec `ROLLBACK` et vérifie que tu as bien
    à nouveau 18 dépenses et un budget Loisirs à 100
 
-<details>
+<details markdown="1">
 <summary>Voir les réponses</summary>
 
 ```sql
