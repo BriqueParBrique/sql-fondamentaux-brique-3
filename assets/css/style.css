@@ -888,6 +888,59 @@ img {
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
+.step-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.step-content th,
+.step-content td {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.step-content th {
+  background: var(--color-code-bg);
+  font-weight: 700;
+}
+
+.step-content tbody tr:nth-child(even) {
+  background: var(--color-code-bg);
+}
+
+.step-content details {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.step-content details[open] {
+  padding-bottom: 1rem;
+}
+
+.step-content details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--brique-primary);
+}
+
+.step-content details summary::marker {
+  color: var(--brique-primary);
+}
+
+.step-content details > *:not(summary) {
+  margin-top: 1rem;
+}
+
+.step-content details pre,
+.step-content details table {
+  margin-bottom: 0;
+}
+
 /* ============================================
    Code block copy button (#7)
    ============================================ */

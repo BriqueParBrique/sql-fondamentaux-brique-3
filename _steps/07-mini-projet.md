@@ -99,7 +99,7 @@ moyenne de leur catégorie, avec le nom de la catégorie. *(7 lignes)*
 
 ### Solutions
 
-<details>
+<details markdown="1">
 <summary>Voir toutes les solutions</summary>
 
 ```sql
