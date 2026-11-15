@@ -1,5 +1,5 @@
 # Managed by BriqueParBrique/nouvelle-brique — do not edit in brick repos
-FROM ruby:3.3-slim
+FROM ruby:4.0-slim
 
 # build-essential : compilation des gems natives.
 # libcurl4 : requis à l'exécution par html-proofer (via ethon/typhoeus), sinon
